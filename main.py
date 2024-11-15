@@ -2,10 +2,17 @@ import sys
 
 class Item:
     """Class representing a item"""
-    def __init__(self, name, price=1, quantity=1) -> None:
+    def __init__(self, name:str, price:float, quantity=1) -> None:
+        # run validation to the received arguments
+        assert price >= 0, f"price {price} is not greater than or equal to 0!"
+        assert quantity >= 0, f"quantity {quantity} is not greater than or equal 0!"
+
+
+        # assign to self object
         self.name = name
         self.price = price
         self.quantity = quantity
+        
 
     def claculate_total_price(self):
         """method representing the price calulcation"""
