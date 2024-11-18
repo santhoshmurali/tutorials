@@ -1,30 +1,26 @@
-import sys
+from item import Item
+from phone import Phone
 
-class Item:
-    """Class representing a item"""
-    def __init__(self, name:str, price:float, quantity=1) -> None:
-        # run validation to the received arguments
-        assert price >= 0, f"price {price} is not greater than or equal to 0!"
-        assert quantity >= 0, f"quantity {quantity} is not greater than or equal 0!"
+item_for_class_attribute = Item("Phone",100,5)
+print(f"Default pay_rate is {item_for_class_attribute.pay_rate}")
+print(f"Original price of phone {item_for_class_attribute.__price}")
+item_for_class_attribute.apply_discount()
+print(f"after applying the discount the price is {item_for_class_attribute.__price}")
 
-
-        # assign to self object
-        self.name = name
-        self.price = price
-        self.quantity = quantity
-        
-
-    def claculate_total_price(self):
-        """method representing the price calulcation"""
-        return self.price * self.quantity
+item_for_updatating_class_attribute = Item("Laptop",1000,3)
+item_for_updatating_class_attribute.pay_rate = 0.7
+print(f"modified pay_rate is {item_for_updatating_class_attribute.pay_rate}")
+print(f"Original Price of laptop {item_for_updatating_class_attribute.__price}")
+item_for_updatating_class_attribute.apply_discount()
+print(f"after overriding the discount rate to 0.3 for laptop {item_for_updatating_class_attribute.__price}")
+print('-------------------------')
 
 
-item1 = Item("Phone",100,5)
-item2 = Item("Computer",1000,5)
-item3 = Item("Charger",5)
-print(item1.claculate_total_price())
-print(item2.claculate_total_price())
-print(item3.claculate_total_price())
+phone1 = Phone("Santhosh Phone",500,5,1)
+print(phone1.claculate_total_price())
+print(Item.all)
+print(Phone.all)
+
 
 
 
