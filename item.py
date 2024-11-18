@@ -65,5 +65,9 @@ class Item:
             self._name = value
         else:
             raise ValueError("Value needs to be non-Null string value")
+
+    @property
+    def price(self):
+        return self.__price
         
             
