@@ -2,7 +2,7 @@ import csv
 
 class Item:
     """Class representing a item"""
-    pay_rate = 8.0
+    pay_rate = 0.8
     all = []
 
     def __init__(self, name:str, price:float, quantity=1) -> None:
@@ -22,10 +22,7 @@ class Item:
         """method representing the price calulcation"""
         return self.__price * self.quantity
 
-    def apply_discount(self):
-        """ Apply discounts"""
-        self.__price = self.__price * self.pay_rate
-    
+
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}('{self.name}',{self.__price},{self.quantity})"
     
@@ -69,5 +66,13 @@ class Item:
     @property
     def price(self):
         return self.__price
+
+    def apply_discount(self):
+        """ Apply discounts"""
+        self.__price = self.__price * self.pay_rate
+
+    def apply_increment(self,increment_value):
+        '''  increment the product price'''
+        self.__price = self.__price + (self.__price*increment_value)
         
             
