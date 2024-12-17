@@ -1,7 +1,11 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.urls import reverse
 import logging
+from .models import Post, AboutUS
+from django.core.paginator import Paginator
+from .forms import ContactForm
+
 class VariablesMethods:
     def __init__(self, Title) -> None:
         self.__Title = Title
@@ -19,30 +23,40 @@ class VariablesMethods:
 
 vars = VariablesMethods("JVL Latest Post")
 
-posts = [
-{'id':1,'title':'Post 1','content': 'Content of post 1'},
-{'id':2,'title':'Post 2','content': 'Content of post 2'},
-{'id':3,'title':'Post 3','content': 'Content of post 3'},
-{'id':4,'title':'Post 4','content': 'Content of post 4'},
-]
+# Static Demo Data
+# posts = [
+# {'id':1,'title':'Post 1','content': 'Content of post 1'},
+# {'id':2,'title':'Post 2','content': 'Content of post 2'},
+# {'id':3,'title':'Post 3','content': 'Content of post 3'},
+# {'id':4,'title':'Post 4','content': 'Content of post 4'},
+# ]
 
 # Create your views here.
 def index(request):
-    # The belo code cannot be used as a global constant due to reverse whoch requires 'request' object. 
-    # posts = [
-    # {'id':1,'title':'Post 1','content': 'Content of post 1','url_path':reverse('blog:detail',kwargs={'post_id':1})},
-    # {'id':2,'title':'Post 2','content': 'Content of post 2','url_path':reverse('blog:detail',kwargs={'post_id':2})},
-    # {'id':3,'title':'Post 3','content': 'Content of post 3','url_path':reverse('blog:detail',kwargs={'post_id':3})},
-    # {'id':4,'title':'Post 4','content': 'Content of post 4','url_path':reverse('blog:detail',kwargs={'post_id':4})},
-    # ]
-    return render(request,'blog\index.html',{'blog_title':vars.Title,'posts':posts})
+    all_posts = Post.objects.all()
+
+    #pagination
+    paginator = Paginator(all_posts,5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request,'blog/index.html',{'blog_title':vars.Title,'page_obj':page_obj})
 
 
-def detail(request,post_id):
-    post = next((item for item in posts if item['id']==int(post_id)),None)
-    # logger = logging.getLogger("Testing")
-    # logger.debug(f"post variable is {post}")
-    return render(request,'blog/detail.html',{'blog_title':vars.Title})
+def detail(request,slug):
+    # Getting Static Data
+    # post = next((item for item in posts if item['id']==int(post_id)),None)
+    #post = [item for item in posts if item['id']==int(post_id)]
+    try:
+    # getting data from model id
+        post = Post.objects.get(slug=slug)
+        related_post = Post.objects.filter(category=post.category).exclude(pk=post.id)
+
+    except Post.DoesNotExist:
+        raise Http404("Post Does not exist")
+    
+
+    return render(request,'blog/detail.html',{'post':post,'related_posts':related_post})
 
 
 def old_url_view(request):
@@ -51,3 +65,25 @@ def old_url_view(request):
 
 def new_url_view(request,post_id):
     return HttpResponse(f"This is redirected from old url carried the post_id of {post_id}")
+
+
+def contact_view(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        message = request.POST.get('message')
+        logger = logging.getLogger("Testing")
+        if form.is_valid():
+            logger.debug(f"post data is {form.cleaned_data['name']} , {form.cleaned_data['email']} , {form.cleaned_data['message']}")
+            success_message = "Your Message is saved"
+            return render(request,'blog/contact.html', {'form':form, 'success_message':success_message})
+        else:
+            logger.debug(f"Form validation Failed")
+        return render(request,'blog/contact.html', {'form':form, 'name':name,'email':email, 'message':message})
+    return render(request,'blog/contact.html')
+
+
+def about_view(request):
+    about_content = AboutUS.objects.first().content
+    return render(request,'blog/about.html', {'about_content':about_content})
